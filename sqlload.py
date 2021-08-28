@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import (
     # QVBoxLayout,
     QApplication,
     QAction,
+    # QTableWidgetItem,
     QLabel,
     QPushButton,
     QHBoxLayout,
@@ -14,7 +15,12 @@ from PyQt5.QtWidgets import (
     QMenu,
     QStatusBar,
     qApp,
-    QGridLayout
+    QTextEdit,
+    QGridLayout,
+    QDialog,
+    QComboBox,
+    QLineEdit
+    # QMainWindow
 )
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, QRect
@@ -32,6 +38,8 @@ class Window(QMainWindow):
         #self.setFixedSize(250, 150)
         self.setWindowTitle('SQL-script loader')
 
+        # textEdit = QTextEdit()
+        # self.setCentralWidget(textEdit)
         self.w = QWidget(self)
         self.setCentralWidget(self.w)
 
@@ -65,6 +73,7 @@ class Window(QMainWindow):
         aboutAct.triggered.connect(self.about)
         exitAct = QAction('Exit', self)
         exitAct.setShortcut('Ctrl+Q')
+        #exitAct.setStatusTip('Exit application')
         exitAct.triggered.connect(qApp.quit)
 
         menu = self.menuBar()
@@ -75,6 +84,10 @@ class Window(QMainWindow):
         helpMenu = menu.addMenu('Help')
         helpMenu.addAction(aboutAct)
 
+        # self.toolbar = self.addToolBar('Exit')
+        # self.toolbar.addAction(exitAct)
+
+
     def openFile(self):
         pass
 
@@ -82,14 +95,61 @@ class Window(QMainWindow):
         pass
 
     def setConn(self):
-        pass
+        self.conn =  Settings(self)
+        
+        self.conn.exec_()
 
     def about(self):
         pass
 
 
+class Settings(QDialog):
+    def __init__(self, parent=None):
+        super().__init__()
+
+        self.setWindowTitle("Configure the connection")
+        self.user = QLabel('user')
+        self.password = QLabel('password')
+        self.host = QLabel('host')
+        self.port = QLabel('port')
+        self.database = QLabel('database')
+        self.dbms = QLabel('database system')
+
+        self.setUser = QLineEdit(self)
+        self.setPassword = QLineEdit(self)
+        self.setPassword.setEchoMode(QLineEdit.Password)
+        self.setHost = QLineEdit(self)
+        self.setPort = QLineEdit(self)
+        self.setDatabase = QLineEdit(self)
+        self.lst_dbms = QComboBox(self)
+        self.lst_dbms.addItems(['MySQL', 'PostgresSQL'])
+
+        self.btn = QPushButton(self)
+        self.btn.pressed.connect(self.configure)
+        self.btn.setText("Configure")
+
+        self.g = QGridLayout(self)
+        self.g.addWidget(self.user, 1, 0)
+        self.g.addWidget(self.setUser, 1, 1)
+        self.g.addWidget(self.password, 2, 0)
+        self.g.addWidget(self.setPassword, 2, 1)
+        self.g.addWidget(self.host, 3, 0)
+        self.g.addWidget(self.setHost, 3, 1)
+        self.g.addWidget(self.port, 4, 0)
+        self.g.addWidget(self.setPort, 4, 1)
+        self.g.addWidget(self.database, 5, 0)
+        self.g.addWidget(self.setDatabase, 5, 1)
+        self.g.addWidget(self.dbms, 6, 0)
+        self.g.addWidget(self.lst_dbms, 6, 1)
+        self.g.addWidget(self.btn, 7, 0, 1, 0)
+
+    def configure(self):
+        print(self.setUser.text(), self.setPassword.text())
+        
+        
 def main():
     app = app = QApplication(sys.argv)
+    # app.setStyle('Fusion')
     window = Window()
     window.show()
     sys.exit(app.exec_())
