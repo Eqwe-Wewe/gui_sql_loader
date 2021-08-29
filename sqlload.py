@@ -23,7 +23,7 @@ from PyQt5.QtWidgets import (
     # QMainWindow
 )
 from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt, QRect
+from PyQt5.QtCore import Qt, QRect, QSize
 
 
 class Window(QMainWindow):
@@ -34,8 +34,8 @@ class Window(QMainWindow):
 
     def initUI(self):
         self.statusBar().showMessage('Ready')
-        
-        #self.setFixedSize(250, 150)
+
+        # self.setFixedSize(250, 150)
         self.setWindowTitle('SQL-script loader')
 
         # textEdit = QTextEdit()
@@ -48,7 +48,6 @@ class Window(QMainWindow):
         self.label_load = QLabel(self.w)
         self.label_load.setText('✓')
 
-        
         self.open_btn = QPushButton(self.w)
         self.open_btn.setText('Open file')
         self.open_btn.pressed.connect(self.openFile)
@@ -64,7 +63,6 @@ class Window(QMainWindow):
         self.grid.addWidget(self.open_btn, 2, 0)
         self.grid.addWidget(self.load_btn, 2, 1)
 
-        
     def menu(self):
         setAct = QAction('Configure the connection', self)
         setAct.setShortcut('Ctrl+N')
@@ -73,7 +71,7 @@ class Window(QMainWindow):
         aboutAct.triggered.connect(self.about)
         exitAct = QAction('Exit', self)
         exitAct.setShortcut('Ctrl+Q')
-        #exitAct.setStatusTip('Exit application')
+        # exitAct.setStatusTip('Exit application')
         exitAct.triggered.connect(qApp.quit)
 
         menu = self.menuBar()
@@ -87,7 +85,6 @@ class Window(QMainWindow):
         # self.toolbar = self.addToolBar('Exit')
         # self.toolbar.addAction(exitAct)
 
-
     def openFile(self):
         pass
 
@@ -95,8 +92,8 @@ class Window(QMainWindow):
         pass
 
     def setConn(self):
-        self.conn =  Settings(self)
-        
+        self.conn = Settings(self)
+
         self.conn.exec_()
 
     def about(self):
@@ -104,7 +101,7 @@ class Window(QMainWindow):
 
 
 class Settings(QDialog):
-    def __init__(self, parent=None):
+    def __init__(self, parent):
         super().__init__()
 
         self.setWindowTitle("Configure the connection")
@@ -124,14 +121,21 @@ class Settings(QDialog):
         self.lst_dbms = QComboBox(self)
         self.lst_dbms.addItems(['MySQL', 'PostgresSQL'])
 
-        self.btn = QPushButton(self)
+        self.btn = QPushButton("Configure", self)
         self.btn.pressed.connect(self.configure)
-        self.btn.setText("Configure")
+        self.btn_echo = QPushButton('echo', self)
+        self.btn_echo.setFixedWidth(20)
+        self.btn_echo.pressed.connect(self.echoOn)
+
+        self.status = QStatusBar()
 
         self.g = QGridLayout(self)
         self.g.addWidget(self.user, 1, 0)
         self.g.addWidget(self.setUser, 1, 1)
-        self.g.addWidget(self.password, 2, 0)
+        self.h = QHBoxLayout(self)
+        self.h.addWidget(self.password)
+        self.h.addWidget(self.btn_echo)
+        self.g.addLayout(self.h, 2, 0)
         self.g.addWidget(self.setPassword, 2, 1)
         self.g.addWidget(self.host, 3, 0)
         self.g.addWidget(self.setHost, 3, 1)
@@ -142,11 +146,22 @@ class Settings(QDialog):
         self.g.addWidget(self.dbms, 6, 0)
         self.g.addWidget(self.lst_dbms, 6, 1)
         self.g.addWidget(self.btn, 7, 0, 1, 0)
+        self.g.addWidget(self.status, 8, 0)
 
     def configure(self):
-        print(self.setUser.text(), self.setPassword.text())
-        
-        
+        self.status.showMessage('Success')
+
+    def echoOn(self):
+        pass
+        '''
+        self.echo = True
+        if self.echo is True:
+            #self.psw_val = self.setPassword.text()
+            #self.setPassword.setEchoMode(QLineEdit.PasswordEchoOnEdit)
+            #self.g.addWidget(self.setPassword, 2, 1)
+        '''
+
+
 def main():
     app = app = QApplication(sys.argv)
     # app.setStyle('Fusion')
