@@ -24,6 +24,9 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, QRect, QSize
+from db import DataBase
+import json
+import os
 
 
 class Window(QMainWindow):
@@ -149,7 +152,32 @@ class Settings(QDialog):
         self.g.addWidget(self.status, 8, 0)
 
     def configure(self):
-        self.status.showMessage('Success')
+        if not os.path.exists('config.json'):
+                with open('config.json', 'w', encoding='utf-8') as file:
+                    data = []
+                    json_data = json.dump(data, indent=3)
+                    file.write(json_data)
+
+        with open('config.json', 'r', encoding='utf-8') as file:
+            json_data = json.load(file)
+            
+        with open('config.json', 'w', encoding='utf-8') as file:
+            json_data.append(
+                {
+                    'user': self.setUser.text(),
+                    'password': self.setPassword.text(),
+                    'ip-address': {
+                        'host': self.setHost.text(),
+                        'port': self.setPort.text()
+                    },
+                    'database': self.setDatabase.text(),
+                    'dbms': self.lst_dbms.currentText()
+                }
+            )
+            file.write(
+                json.dump(json_data, indent=3, ensure_ascii=False)
+            )
+        self.status.showMessage('config create!')
 
     def echoOn(self):
         pass
