@@ -1,5 +1,3 @@
-import sys
-import os
 from PyQt5.QtWidgets import (
     QMainWindow,
     QWidget,
@@ -27,6 +25,7 @@ from PyQt5.QtCore import Qt, QRect, QSize
 from db import DataBase
 import json
 import os
+import sys
 
 
 class Window(QMainWindow):
@@ -46,6 +45,9 @@ class Window(QMainWindow):
         self.w = QWidget(self)
         self.setCentralWidget(self.w)
 
+        self.name_conn = QComboBox(self)
+        self.loadConn(self.name_conn)
+
         self.label_open = QLabel(self.w)
         self.label_open.setText('✓')
         self.label_load = QLabel(self.w)
@@ -61,10 +63,11 @@ class Window(QMainWindow):
 
         self.grid = QGridLayout(self.w)
         self.grid.setSpacing(10)
-        self.grid.addWidget(self.label_open, 1, 0)
-        self.grid.addWidget(self.label_load, 1, 1)
-        self.grid.addWidget(self.open_btn, 2, 0)
-        self.grid.addWidget(self.load_btn, 2, 1)
+        self.grid.addWidget(self.name_conn, 1, 1)
+        self.grid.addWidget(self.label_open, 2, 0)
+        self.grid.addWidget(self.label_load, 2, 1)
+        self.grid.addWidget(self.open_btn, 3, 0)
+        self.grid.addWidget(self.load_btn, 3, 1)
 
     def menu(self):
         setAct = QAction('Configure the connection', self)
@@ -88,6 +91,16 @@ class Window(QMainWindow):
         # self.toolbar = self.addToolBar('Exit')
         # self.toolbar.addAction(exitAct)
 
+    def loadConn(self, combox):
+        try:
+            with open('config.json', 'r') as file:
+                data = json.load(file)
+                items = [i["name"] for i in data]
+        except Exception:
+            return ['configure conn']
+        else:
+            combox.addItems(items)
+
     def openFile(self):
         pass
 
@@ -96,8 +109,11 @@ class Window(QMainWindow):
 
     def setConn(self):
         self.conn = Settings(self)
-
+        # from pprint import pprint
+        # pprint(self.conn.__dict__)
+        # self.loadConn(self.name_conn)
         self.conn.exec_()
+        self.loadConn(self.name_conn)
 
     def about(self):
         pass
@@ -106,8 +122,8 @@ class Window(QMainWindow):
 class Settings(QDialog):
     def __init__(self, parent):
         super().__init__()
-
         self.setWindowTitle("Configure the connection")
+        self.name = QLabel('connection name')
         self.user = QLabel('user')
         self.password = QLabel('password')
         self.host = QLabel('host')
@@ -115,6 +131,7 @@ class Settings(QDialog):
         self.database = QLabel('database')
         self.dbms = QLabel('database system')
 
+        self.setName = QLineEdit(self)
         self.setUser = QLineEdit(self)
         self.setPassword = QLineEdit(self)
         self.setPassword.setEchoMode(QLineEdit.Password)
@@ -133,37 +150,40 @@ class Settings(QDialog):
         self.status = QStatusBar()
 
         self.g = QGridLayout(self)
-        self.g.addWidget(self.user, 1, 0)
-        self.g.addWidget(self.setUser, 1, 1)
+        self.g.addWidget(self.name, 1, 0)
+        self.g.addWidget(self.setName, 1, 1)
+        self.g.addWidget(self.user, 2, 0)
+        self.g.addWidget(self.setUser, 2, 1)
         self.h = QHBoxLayout(self)
         self.h.addWidget(self.password)
         self.h.addWidget(self.btn_echo)
-        self.g.addLayout(self.h, 2, 0)
-        self.g.addWidget(self.setPassword, 2, 1)
-        self.g.addWidget(self.host, 3, 0)
-        self.g.addWidget(self.setHost, 3, 1)
-        self.g.addWidget(self.port, 4, 0)
-        self.g.addWidget(self.setPort, 4, 1)
-        self.g.addWidget(self.database, 5, 0)
-        self.g.addWidget(self.setDatabase, 5, 1)
-        self.g.addWidget(self.dbms, 6, 0)
-        self.g.addWidget(self.lst_dbms, 6, 1)
-        self.g.addWidget(self.btn, 7, 0, 1, 0)
-        self.g.addWidget(self.status, 8, 0)
+        self.g.addLayout(self.h, 3, 0)
+        self.g.addWidget(self.setPassword, 3, 1)
+        self.g.addWidget(self.host, 4, 0)
+        self.g.addWidget(self.setHost, 4, 1)
+        self.g.addWidget(self.port, 5, 0)
+        self.g.addWidget(self.setPort, 5, 1)
+        self.g.addWidget(self.database, 6, 0)
+        self.g.addWidget(self.setDatabase, 6, 1)
+        self.g.addWidget(self.dbms, 7, 0)
+        self.g.addWidget(self.lst_dbms, 7, 1)
+        self.g.addWidget(self.btn, 8, 0, 1, 0)
+        self.g.addWidget(self.status, 9, 0)
 
     def configure(self):
         if not os.path.exists('config.json'):
-                with open('config.json', 'w', encoding='utf-8') as file:
-                    data = []
-                    json_data = json.dump(data, indent=3)
-                    file.write(json_data)
+            with open('config.json', 'w', encoding='utf-8') as file:
+                data = []
+                json_data = json.dump(data, file, indent=3)
+                file.write(json_data)
 
         with open('config.json', 'r', encoding='utf-8') as file:
             json_data = json.load(file)
-            
+
         with open('config.json', 'w', encoding='utf-8') as file:
             json_data.append(
                 {
+                    'name': self.setName.text(),
                     'user': self.setUser.text(),
                     'password': self.setPassword.text(),
                     'ip-address': {
@@ -174,9 +194,8 @@ class Settings(QDialog):
                     'dbms': self.lst_dbms.currentText()
                 }
             )
-            file.write(
-                json.dump(json_data, indent=3, ensure_ascii=False)
-            )
+            json.dump(json_data, file, indent=3, ensure_ascii=False)
+
         self.status.showMessage('config create!')
 
     def echoOn(self):
