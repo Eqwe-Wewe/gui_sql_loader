@@ -17,8 +17,8 @@ from PyQt5.QtWidgets import (
     QGridLayout,
     QDialog,
     QComboBox,
-    QLineEdit
-    # QMainWindow
+    QLineEdit,
+    QFileDialog,
 )
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, QRect, QSize
@@ -100,12 +100,24 @@ class Window(QMainWindow):
             return ['configure conn']
         else:
             combox.addItems(items)
+ 
+    def getConn(self)-> dict:
+        pass
 
+    ####111
     def openFile(self):
-        pass
+        self.path_script = QFileDialog.getOpenFileNames(
+            self, None, None, "*.sql"
+            )[0][0]
 
+    ###222
     def loadFile(self):
-        pass
+        with Database(self.getConfig()) as cursor:
+            if cursor.execute(open(self.path_script).read()):
+                mes = 'The script load successfully!'
+            else:
+                mes = 'Error'
+        self.statusBar().showMessage(mes)
 
     def setConn(self):
         self.conn = Settings(self)
@@ -194,6 +206,7 @@ class Settings(QDialog):
                     'dbms': self.lst_dbms.currentText()
                 }
             )
+
             json.dump(json_data, file, indent=3, ensure_ascii=False)
 
         self.status.showMessage('config create!')
