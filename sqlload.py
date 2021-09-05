@@ -40,18 +40,14 @@ class Window(QMainWindow):
         # self.setFixedSize(250, 150)
         self.setWindowTitle('SQL-script loader')
 
-        # textEdit = QTextEdit()
-        # self.setCentralWidget(textEdit)
         self.w = QWidget(self)
         self.setCentralWidget(self.w)
 
         self.name_conn = QComboBox(self)
         self.loadConn(self.name_conn)
 
-        self.label_open = QLabel(self.w)
-        self.label_open.setText('✓')
+        self.label_file_name = QLabel(self.w)
         self.label_load = QLabel(self.w)
-        self.label_load.setText('✓')
 
         self.open_btn = QPushButton(self.w)
         self.open_btn.setText('Open file')
@@ -63,11 +59,10 @@ class Window(QMainWindow):
 
         self.grid = QGridLayout(self.w)
         self.grid.setSpacing(10)
+        self.grid.addWidget(self.label_file_name, 1, 0)
         self.grid.addWidget(self.name_conn, 1, 1)
-        self.grid.addWidget(self.label_open, 2, 0)
-        self.grid.addWidget(self.label_load, 2, 1)
-        self.grid.addWidget(self.open_btn, 3, 0)
-        self.grid.addWidget(self.load_btn, 3, 1)
+        self.grid.addWidget(self.open_btn, 2, 0)
+        self.grid.addWidget(self.load_btn, 2, 1)
 
     def menu(self):
         setAct = QAction('Configure the connection', self)
@@ -109,21 +104,32 @@ class Window(QMainWindow):
         self.path_script = QFileDialog.getOpenFileNames(
             self, None, None, "*.sql"
             )[0][0]
+        self.label_file_name.setText(self.path_script)
 
     ###222
     def loadFile(self):
-        with Database(self.getConfig()) as cursor:
+        with DataBase(self.getConfig()) as cursor:
             if cursor.execute(open(self.path_script).read()):
                 mes = 'The script load successfully!'
             else:
                 mes = 'Error'
         self.statusBar().showMessage(mes)
 
+    def getConfig(self):
+        config_name = self.name_conn.currentText()
+        with open('config.json', 'r') as file:
+            data = json.load(file)
+            config = [i for i in data if i['name'] == config_name][0]
+        return {
+            'user': config['user'],
+            'password': config['password'],
+            'host': config['ip-address']['host'],
+            'port': config['ip-address']['port'],
+            'database': config['database']
+        }
+    
     def setConn(self):
         self.conn = Settings(self)
-        # from pprint import pprint
-        # pprint(self.conn.__dict__)
-        # self.loadConn(self.name_conn)
         self.conn.exec_()
         self.loadConn(self.name_conn)
 
