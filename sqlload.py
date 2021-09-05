@@ -37,7 +37,7 @@ class Window(QMainWindow):
     def initUI(self):
         self.statusBar().showMessage('Ready')
 
-        # self.setFixedSize(250, 150)
+        self.setFixedSize(250, 200)
         self.setWindowTitle('SQL-script loader')
 
         self.w = QWidget(self)
@@ -47,13 +47,14 @@ class Window(QMainWindow):
         self.loadConn(self.name_conn)
 
         self.label_file_name = QLabel(self.w)
-        self.label_load = QLabel(self.w)
+        self.label_file_name.setWordWrap(True)
 
         self.open_btn = QPushButton(self.w)
         self.open_btn.setText('Open file')
         self.open_btn.pressed.connect(self.openFile)
         self.load_btn = QPushButton(self.w)
         self.load_btn.setText('Load file')
+        self.load_btn.setEnabled(False)
         self.load_btn.pressed.connect(self.loadFile)
         self.load_btn.move(100, 0)
 
@@ -101,10 +102,15 @@ class Window(QMainWindow):
 
     ####111
     def openFile(self):
-        self.path_script = QFileDialog.getOpenFileNames(
-            self, None, None, "*.sql"
-            )[0][0]
-        self.label_file_name.setText(self.path_script)
+        try:
+            self.path_script = QFileDialog.getOpenFileNames(
+                self, None, None, "*.sql"
+                )[0][0]
+        except IndexError:
+            None
+        else:
+            self.label_file_name.setText(self.path_script)
+            self.load_btn.setEnabled(True)
 
     ###222
     def loadFile(self):
