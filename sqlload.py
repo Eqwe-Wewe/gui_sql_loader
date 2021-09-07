@@ -19,6 +19,7 @@ from PyQt5.QtWidgets import (
     QComboBox,
     QLineEdit,
     QFileDialog,
+    QMessageBox
 )
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, QRect, QSize
@@ -83,7 +84,6 @@ class Window(QMainWindow):
         helpMenu = menu.addMenu('Help')
         helpMenu.addAction(aboutAct)
 
-
     def loadConn(self, combox):
         try:
             with open('config.json', 'r') as file:
@@ -98,7 +98,7 @@ class Window(QMainWindow):
         try:
             self.path_script = QFileDialog.getOpenFileNames(
                 self, None, None, "*.sql"
-                )[0][0]
+            )[0][0]
         except IndexError:
             None
         else:
@@ -169,6 +169,8 @@ class Settings(QDialog):
         self.btn_echo.setFixedWidth(20)
         self.btn_echo.pressed.connect(self.echoAction)
 
+        self.msg = QMessageBox(self)
+
         self.g = QGridLayout(self)
         self.g.addWidget(self.name, 1, 0)
         self.g.addWidget(self.setName, 1, 1)
@@ -213,17 +215,24 @@ class Settings(QDialog):
                     'dbms': self.lst_dbms.currentText()
                 }
             )
-
-            json.dump(json_data, file, indent=3, ensure_ascii=False)
-
+            try:
+                json.dump(json_data, file, indent=3, ensure_ascii=False)
+            except Exception as err:
+                message = err
+            else:
+                message = 'config create successfully!'
+            finally:
+                self.msg.information(self, 'info', message)
 
     def echoAction(self):
-            if self.echo is True:
-                self.setPassword.setEchoMode(QLineEdit.Normal)
-                self.echo = False
-            else:
-                self.setPassword.setEchoMode(QLineEdit.Password)
-                self.echo = True
+        if self.echo is True:
+            self.setPassword.setEchoMode(QLineEdit.Normal)
+            self.echo = False
+        else:
+            self.setPassword.setEchoMode(QLineEdit.Password)
+            self.echo = True
+
+
 def main():
     app = app = QApplication(sys.argv)
     # app.setStyle('Fusion')
