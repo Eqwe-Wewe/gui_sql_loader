@@ -73,7 +73,6 @@ class Window(QMainWindow):
         aboutAct.triggered.connect(self.about)
         exitAct = QAction('Exit', self)
         exitAct.setShortcut('Ctrl+Q')
-        # exitAct.setStatusTip('Exit application')
         exitAct.triggered.connect(qApp.quit)
 
         menu = self.menuBar()
@@ -84,8 +83,6 @@ class Window(QMainWindow):
         helpMenu = menu.addMenu('Help')
         helpMenu.addAction(aboutAct)
 
-        # self.toolbar = self.addToolBar('Exit')
-        # self.toolbar.addAction(exitAct)
 
     def loadConn(self, combox):
         try:
@@ -121,17 +118,18 @@ class Window(QMainWindow):
         with open('config.json', 'r') as file:
             data = json.load(file)
             config = [i for i in data if i['name'] == config_name][0]
+            db_type = config['dbms']
         return [
             {
-            'user': config['user'],
-            'password': config['password'],
-            'host': config['ip-address']['host'],
-            'port': config['ip-address']['port'],
-            'database': config['database']
+                'user': config['user'],
+                'password': config['password'],
+                'host': config['ip-address']['host'],
+                'port': config['ip-address']['port'],
+                'database': config['database']
             },
-            db_type = config['dbms']
+            db_type
         ]
-    
+
     def setConn(self):
         self.conn = Settings(self)
         self.conn.exec_()
@@ -153,6 +151,8 @@ class Settings(QDialog):
         self.database = QLabel('database')
         self.dbms = QLabel('database system')
 
+        self.echo = True
+
         self.setName = QLineEdit(self)
         self.setUser = QLineEdit(self)
         self.setPassword = QLineEdit(self)
@@ -167,9 +167,7 @@ class Settings(QDialog):
         self.btn.pressed.connect(self.configure)
         self.btn_echo = QPushButton('echo', self)
         self.btn_echo.setFixedWidth(20)
-        self.btn_echo.pressed.connect(self.echoOn)
-
-        self.status = QStatusBar()
+        self.btn_echo.pressed.connect(self.echoAction)
 
         self.g = QGridLayout(self)
         self.g.addWidget(self.name, 1, 0)
@@ -190,7 +188,6 @@ class Settings(QDialog):
         self.g.addWidget(self.dbms, 7, 0)
         self.g.addWidget(self.lst_dbms, 7, 1)
         self.g.addWidget(self.btn, 8, 0, 1, 0)
-        self.g.addWidget(self.status, 9, 0)
 
     def configure(self):
         if not os.path.exists('config.json'):
@@ -219,19 +216,14 @@ class Settings(QDialog):
 
             json.dump(json_data, file, indent=3, ensure_ascii=False)
 
-        self.status.showMessage('config create!')
 
-    def echoOn(self):
-        pass
-        '''
-        self.echo = True
-        if self.echo is True:
-            #self.psw_val = self.setPassword.text()
-            #self.setPassword.setEchoMode(QLineEdit.PasswordEchoOnEdit)
-            #self.g.addWidget(self.setPassword, 2, 1)
-        '''
-
-
+    def echoAction(self):
+            if self.echo is True:
+                self.setPassword.setEchoMode(QLineEdit.Normal)
+                self.echo = False
+            else:
+                self.setPassword.setEchoMode(QLineEdit.Password)
+                self.echo = True
 def main():
     app = app = QApplication(sys.argv)
     # app.setStyle('Fusion')
