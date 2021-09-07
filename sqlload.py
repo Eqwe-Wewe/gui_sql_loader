@@ -96,11 +96,7 @@ class Window(QMainWindow):
             return ['configure conn']
         else:
             combox.addItems(items)
- 
-    def getConn(self)-> dict:
-        pass
 
-    ####111
     def openFile(self):
         try:
             self.path_script = QFileDialog.getOpenFileNames(
@@ -112,9 +108,8 @@ class Window(QMainWindow):
             self.label_file_name.setText(self.path_script)
             self.load_btn.setEnabled(True)
 
-    ###222
     def loadFile(self):
-        with DataBase(self.getConfig()) as cursor:
+        with DataBase(*self.getConfig()) as cursor:
             if cursor.execute(open(self.path_script).read()):
                 mes = 'The script load successfully!'
             else:
@@ -126,13 +121,16 @@ class Window(QMainWindow):
         with open('config.json', 'r') as file:
             data = json.load(file)
             config = [i for i in data if i['name'] == config_name][0]
-        return {
+        return [
+            {
             'user': config['user'],
             'password': config['password'],
             'host': config['ip-address']['host'],
             'port': config['ip-address']['port'],
             'database': config['database']
-        }
+            },
+            db_type = config['dbms']
+        ]
     
     def setConn(self):
         self.conn = Settings(self)
@@ -163,7 +161,7 @@ class Settings(QDialog):
         self.setPort = QLineEdit(self)
         self.setDatabase = QLineEdit(self)
         self.lst_dbms = QComboBox(self)
-        self.lst_dbms.addItems(['MySQL', 'PostgresSQL'])
+        self.lst_dbms.addItems(['MySQL', 'PostgreSQL', 'SQLite'])
 
         self.btn = QPushButton("Configure", self)
         self.btn.pressed.connect(self.configure)
