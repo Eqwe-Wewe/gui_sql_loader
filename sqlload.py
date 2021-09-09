@@ -22,11 +22,20 @@ from PyQt5.QtWidgets import (
     QMessageBox
 )
 from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt, QRect, QSize
+from PyQt5.QtCore import Qt, QRect, QSize, pyqtSignal
 from db import DataBase
 import json
 import os
 import sys
+
+
+
+class Label(QLabel):
+    labelClicked = pyqtSignal()
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            self.labelClicked.emit()
 
 
 class Window(QMainWindow):
@@ -165,9 +174,9 @@ class Settings(QDialog):
 
         self.btn = QPushButton("Configure", self)
         self.btn.pressed.connect(self.configure)
-        self.btn_echo = QPushButton('echo', self)
-        self.btn_echo.setFixedWidth(20)
-        self.btn_echo.pressed.connect(self.echoAction)
+        self.echo_label = Label('e', self)
+        self.echo_label.setFixedSize(20, 20)
+        self.echo_label.labelClicked.connect(self.echoAction)
 
         self.msg = QMessageBox(self)
 
@@ -178,7 +187,7 @@ class Settings(QDialog):
         self.g.addWidget(self.setUser, 2, 1)
         self.h = QHBoxLayout(self)
         self.h.addWidget(self.password)
-        self.h.addWidget(self.btn_echo)
+        self.h.addWidget(self.echo_label)
         self.g.addLayout(self.h, 3, 0)
         self.g.addWidget(self.setPassword, 3, 1)
         self.g.addWidget(self.host, 4, 0)
