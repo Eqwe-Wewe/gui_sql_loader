@@ -21,8 +21,9 @@ from PyQt5.QtWidgets import (
     QFileDialog,
     QMessageBox
 )
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtCore import Qt, QRect, QSize, pyqtSignal
+import resources
 from db import DataBase
 import json
 import os
@@ -160,8 +161,6 @@ class Settings(QDialog):
         self.database = QLabel('database')
         self.dbms = QLabel('database system')
 
-        self.echo = True
-
         self.setName = QLineEdit(self)
         self.setUser = QLineEdit(self)
         self.setPassword = QLineEdit(self)
@@ -174,7 +173,17 @@ class Settings(QDialog):
 
         self.btn = QPushButton("Configure", self)
         self.btn.pressed.connect(self.configure)
-        self.echo_label = Label('e', self)
+
+        self.echo = True
+        self.echo_label = Label(self)
+        self.echo_label.setPixmap(
+            QPixmap(':/source/close_eye.png').scaled(
+                20,
+                20,
+                Qt.KeepAspectRatio,
+                Qt.SmoothTransformation
+            )
+        )
         self.echo_label.setFixedSize(20, 20)
         self.echo_label.labelClicked.connect(self.echoAction)
 
@@ -237,9 +246,19 @@ class Settings(QDialog):
         if self.echo is True:
             self.setPassword.setEchoMode(QLineEdit.Normal)
             self.echo = False
+            echo_icon = ':/source/open_eye.png'
         else:
             self.setPassword.setEchoMode(QLineEdit.Password)
             self.echo = True
+            echo_icon = ':/source/close_eye.png'
+        self.echo_label.setPixmap(
+            QPixmap(echo_icon).scaled(
+                20,
+                20,
+                Qt.KeepAspectRatio,
+                Qt.SmoothTransformation
+            )
+        )
 
 
 def main():
