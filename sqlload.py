@@ -19,7 +19,8 @@ from PyQt5.QtWidgets import (
     QComboBox,
     QLineEdit,
     QFileDialog,
-    QMessageBox
+    QMessageBox,
+    QListWidget
 )
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtCore import Qt, QRect, QSize, pyqtSignal
@@ -28,7 +29,6 @@ from db import DataBase
 import json
 import os
 import sys
-
 
 
 class Label(QLabel):
@@ -80,6 +80,8 @@ class Window(QMainWindow):
         setAct = QAction('Configure the connection', self)
         setAct.setShortcut('Ctrl+N')
         setAct.triggered.connect(self.setConn)
+        delConnAct = QAction('Drop the connection', self)
+        delConnAct.triggered.connect(self.delConn)
         aboutAct = QAction('About', self)
         aboutAct.triggered.connect(self.about)
         exitAct = QAction('Exit', self)
@@ -89,20 +91,21 @@ class Window(QMainWindow):
         menu = self.menuBar()
         mainMenu = menu.addMenu('File')
         mainMenu.addAction(setAct)
+        mainMenu.addAction(delConnAct)
         mainMenu.addSeparator()
         mainMenu.addAction(exitAct)
         helpMenu = menu.addMenu('Help')
         helpMenu.addAction(aboutAct)
 
-    def loadConn(self, combox):
+    def loadConn(self, widget):
         try:
             with open('config.json', 'r') as file:
                 data = json.load(file)
                 items = [i["name"] for i in data]
         except Exception:
-            return ['configure conn']
+            return ['no connections']
         else:
-            combox.addItems(items)
+            widget.addItems(items)
 
     def openFile(self):
         try:
@@ -144,6 +147,10 @@ class Window(QMainWindow):
         self.conn = Settings(self)
         self.conn.exec_()
         self.loadConn(self.name_conn)
+
+    def delConn(self):
+        self.del_connect = Deleter(self)
+        self.del_connect.exec_()
 
     def about(self):
         pass
@@ -259,6 +266,29 @@ class Settings(QDialog):
                 Qt.SmoothTransformation
             )
         )
+
+
+class Deleter(QDialog):
+    def __init__(self, parent):
+        super().__init__()
+
+        self.lst = QListWidget(self)
+        Window.loadConn(self, self.lst)
+        self.lst.itemClicked.connect(self.select_conn)
+
+        self.del_button = QPushButton('Delete connection', self)
+        self.del_button.setMaximumWidth(150)
+        self.del_button.clicked.connect(self.drop_conn_json)
+
+        self.h_layout = QVBoxLayout(self)
+        self.h_layout.addWidget(self.lst, alignment=Qt.AlignCenter)
+        self.h_layout.addWidget(self.del_button, alignment=Qt.AlignCenter)
+
+    def drop_conn_json(self):
+        pass
+
+    def select_conn(self, conn):
+        pass
 
 
 def main():
