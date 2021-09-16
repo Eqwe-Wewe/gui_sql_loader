@@ -284,11 +284,24 @@ class Deleter(QDialog):
         self.h_layout.addWidget(self.lst, alignment=Qt.AlignCenter)
         self.h_layout.addWidget(self.del_button, alignment=Qt.AlignCenter)
 
+        self.msg = QMessageBox(self)
+
     def drop_conn_json(self):
-        pass
+        with open('config.json', 'r', encoding='utf-8') as file:
+            data = json.load(file)
+
+        [
+            data.pop(v) for v, connect in enumerate(data)
+            if connect['name']==self.conn
+        ]
+
+        with open('config.json', 'w', encoding='utf-8') as file:
+            json.dump(data, file, indent=3, ensure_ascii=False)
+            self.msg.information(self, 'info', 'config delete!')
+            #Window.loadConn(self, self.lst)
 
     def select_conn(self, conn):
-        pass
+        self.conn = conn.text()
 
 
 def main():
