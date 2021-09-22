@@ -101,7 +101,8 @@ class Window(QMainWindow):
         try:
             with open('config.json', 'r') as file:
                 data = json.load(file)
-                items = [i["name"] for i in data]
+                items = [i for i in data]
+                print(items)
         except Exception:
             return ['no connections']
         else:
@@ -130,7 +131,8 @@ class Window(QMainWindow):
         config_name = self.name_conn.currentText()
         with open('config.json', 'r') as file:
             data = json.load(file)
-            config = [i for i in data if i['name'] == config_name][0]
+            config = [i for i in data if i == config_name][0]
+            print(config)
             db_type = config['dbms']
         return [
             {
@@ -219,7 +221,7 @@ class Settings(QDialog):
     def configure(self):
         if not os.path.exists('config.json'):
             with open('config.json', 'w', encoding='utf-8') as file:
-                data = []
+                data = {}
                 json_data = json.dump(data, file, indent=3)
                 file.write(json_data)
 
@@ -227,19 +229,17 @@ class Settings(QDialog):
             json_data = json.load(file)
 
         with open('config.json', 'w', encoding='utf-8') as file:
-            json_data.append(
-                {
-                    'name': self.setName.text(),
-                    'user': self.setUser.text(),
-                    'password': self.setPassword.text(),
-                    'ip-address': {
-                        'host': self.setHost.text(),
-                        'port': self.setPort.text()
-                    },
-                    'database': self.setDatabase.text(),
-                    'dbms': self.lst_dbms.currentText()
-                }
-            )
+            json_data[self.setName.text()] = {
+                'user': self.setUser.text(),
+                'password': self.setPassword.text(),
+                'ip-address': {
+                    'host': self.setHost.text(),
+                    'port': self.setPort.text()
+                },
+                'database': self.setDatabase.text(),
+                'dbms': self.lst_dbms.currentText()
+            }
+            print(json_data)
             try:
                 json.dump(json_data, file, indent=3, ensure_ascii=False)
             except Exception as err:
