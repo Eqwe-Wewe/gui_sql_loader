@@ -289,16 +289,12 @@ class Deleter(QDialog):
     def drop_conn_json(self):
         with open('config.json', 'r', encoding='utf-8') as file:
             data = json.load(file)
-
-        [
-            data.pop(v) for v, connect in enumerate(data)
-            if connect['name']==self.conn
-        ]
-
+        data.pop(self.conn)
         with open('config.json', 'w', encoding='utf-8') as file:
             json.dump(data, file, indent=3, ensure_ascii=False)
             self.msg.information(self, 'info', 'config delete!')
-            #Window.loadConn(self, self.lst)
+
+        # Window.name_conn.removeItem(Window.name_conn.currentIndex())
 
     def select_conn(self, conn):
         self.conn = conn.text()
