@@ -31,6 +31,17 @@ import os
 import sys
 
 
+class ListWidget(QListWidget):
+    def __init__(self, *args):
+        super().__init__()
+
+    def addItems(self, *args):
+        super().addItems(*args)
+        args = args[0]
+        self.kw_args = dict(zip(args, range((len(args)))))
+        print(self.kw_args)
+
+
 class Label(QLabel):
     labelClicked = pyqtSignal()
 
@@ -106,6 +117,7 @@ class Window(QMainWindow):
         except Exception:
             return ['no connections']
         else:
+            widget.clear()
             widget.addItems(items)
 
     def openFile(self):
@@ -153,6 +165,7 @@ class Window(QMainWindow):
     def delConn(self):
         self.del_connect = Deleter(self)
         self.del_connect.exec_()
+        self.loadConn(self.name_conn)
 
     def about(self):
         pass
@@ -272,7 +285,7 @@ class Deleter(QDialog):
     def __init__(self, parent):
         super().__init__()
 
-        self.lst = QListWidget(self)
+        self.lst = ListWidget(self)
         Window.loadConn(self, self.lst)
         self.lst.itemClicked.connect(self.select_conn)
 
@@ -287,6 +300,8 @@ class Deleter(QDialog):
         self.msg = QMessageBox(self)
 
     def drop_conn_json(self):
+        self.lst.takeItem(self.lst.kw_args[self.conn])
+        self.lst.kw_args.pop(self.conn)
         with open('config.json', 'r', encoding='utf-8') as file:
             data = json.load(file)
         data.pop(self.conn)
