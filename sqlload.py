@@ -39,7 +39,6 @@ class ListWidget(QListWidget):
         super().addItems(*args)
         args = args[0]
         self.kw_args = dict(zip(args, range((len(args)))))
-        print(self.kw_args)
 
 
 class Label(QLabel):
@@ -113,7 +112,6 @@ class Window(QMainWindow):
             with open('config.json', 'r') as file:
                 data = json.load(file)
                 items = [i for i in data]
-                print(items)
         except Exception:
             return ['no connections']
         else:
@@ -144,7 +142,6 @@ class Window(QMainWindow):
         with open('config.json', 'r') as file:
             data = json.load(file)
             config = [i for i in data if i == config_name][0]
-            print(config)
             db_type = config['dbms']
         return [
             {
@@ -252,7 +249,6 @@ class Settings(QDialog):
                 'database': self.setDatabase.text(),
                 'dbms': self.lst_dbms.currentText()
             }
-            print(json_data)
             try:
                 json.dump(json_data, file, indent=3, ensure_ascii=False)
             except Exception as err:
@@ -261,6 +257,7 @@ class Settings(QDialog):
                 message = 'config create successfully!'
             finally:
                 self.msg.information(self, 'info', message)
+                self.close()
 
     def echoAction(self):
         if self.echo is True:
@@ -300,16 +297,14 @@ class Deleter(QDialog):
         self.msg = QMessageBox(self)
 
     def drop_conn_json(self):
-        self.lst.takeItem(self.lst.kw_args[self.conn])
-        self.lst.kw_args.pop(self.conn)
+        self.lst.takeItem(self.lst.kw_args[self.conn])##########
+        self.lst.kw_args.pop(self.conn)#############
         with open('config.json', 'r', encoding='utf-8') as file:
             data = json.load(file)
         data.pop(self.conn)
         with open('config.json', 'w', encoding='utf-8') as file:
             json.dump(data, file, indent=3, ensure_ascii=False)
             self.msg.information(self, 'info', 'config delete!')
-
-        # Window.name_conn.removeItem(Window.name_conn.currentIndex())
 
     def select_conn(self, conn):
         self.conn = conn.text()
