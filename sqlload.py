@@ -40,6 +40,10 @@ class ListWidget(QListWidget):
         args = args[0]
         self.kw_args = dict(zip(args, range((len(args)))))
 
+    def takeItem(self, item: str):
+        super().takeItem(self.kw_args[item])
+        self.kw_args.pop(item)
+
 
 class Label(QLabel):
     labelClicked = pyqtSignal()
@@ -58,7 +62,7 @@ class Window(QMainWindow):
     def initUI(self):
         self.statusBar().showMessage('Ready')
 
-        self.setFixedSize(250, 200)
+        self.setFixedSize(350, 200)
         self.setWindowTitle('SQL-script loader')
 
         self.w = QWidget(self)
@@ -67,7 +71,7 @@ class Window(QMainWindow):
         self.name_conn = QComboBox(self)
         self.loadConn(self.name_conn)
 
-        self.label_file_name = QLabel(self.w)
+        self.label_file_name = QListWidget(self.w)
         self.label_file_name.setWordWrap(True)
 
         self.open_btn = QPushButton(self.w)
@@ -120,21 +124,22 @@ class Window(QMainWindow):
 
     def openFile(self):
         try:
-            self.path_script = QFileDialog.getOpenFileNames(
+            self.path_scripts = QFileDialog.getOpenFileNames(
                 self, None, None, "*.sql"
-            )[0][0]
+            )[0]
         except IndexError:
             None
         else:
-            self.label_file_name.setText(self.path_script)
+            self.label_file_name.addItems(self.path_scripts)
             self.load_btn.setEnabled(True)
 
     def loadFile(self):
-        with DataBase(*self.getConfig()) as cursor:
-            if cursor.execute(open(self.path_script).read()):
-                mes = 'The script load successfully!'
-            else:
-                mes = 'Error'
+        for path in self.path_scripts:
+            with DataBase(*self.getConfig()) as cursor:
+                if cursor.execute(open(path).read()):
+                    mes = 'The script load successfully!'
+                else:
+                    mes = 'Error'
         self.statusBar().showMessage(mes)
 
     def getConfig(self):
@@ -297,8 +302,7 @@ class Deleter(QDialog):
         self.msg = QMessageBox(self)
 
     def drop_conn_json(self):
-        self.lst.takeItem(self.lst.kw_args[self.conn])##########
-        self.lst.kw_args.pop(self.conn)#############
+        self.lst.takeItem(self.conn)
         with open('config.json', 'r', encoding='utf-8') as file:
             data = json.load(file)
         data.pop(self.conn)
