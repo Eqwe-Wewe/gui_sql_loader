@@ -300,7 +300,8 @@ class Deleter(QDialog):
         self.h_layout.addWidget(self.del_button, alignment=Qt.AlignCenter)
 
         self.msg = QMessageBox(self)
-
+        self.check_lst_for_emp()
+        
     def drop_conn_json(self):
         self.lst.takeItem(self.conn)
         with open('config.json', 'r', encoding='utf-8') as file:
@@ -309,6 +310,25 @@ class Deleter(QDialog):
         with open('config.json', 'w', encoding='utf-8') as file:
             json.dump(data, file, indent=3, ensure_ascii=False)
             self.msg.information(self, 'info', 'config delete!')
+        self.check_lst_for_emp()    
+
+    def check_lst_for_emp(self):
+        if self.lst.count() == 0:
+            self.lst.addItem('empty')
+            #self.label = QLabel('empty', self)
+            self.lst.setStyleSheet(
+                """
+                    QListWidget {
+                        color: grey;
+                        text-align: center
+                    }
+                """
+            )
+            #self.label.setAlignment(Qt.AlignVCenter)
+            self.lst.itemClicked.disconnect(self.select_conn)
+            self.del_button.setEnabled(False)
+        else:
+            self.del_button.setEnabled(True)
 
     def select_conn(self, conn):
         self.conn = conn.text()
