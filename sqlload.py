@@ -1,10 +1,8 @@
 from PyQt5.QtWidgets import (
     QMainWindow,
     QWidget,
-    # QVBoxLayout,
     QApplication,
     QAction,
-    # QTableWidgetItem,
     QLabel,
     QPushButton,
     QHBoxLayout,
@@ -131,7 +129,8 @@ class Window(QMainWindow):
             None
         else:
             self.label_file_name.addItems(self.path_scripts)
-            self.load_btn.setEnabled(True)
+            if len(self.path_scripts) > 0:
+                self.load_btn.setEnabled(True)
 
     def loadFile(self):
         for path in self.path_scripts:
@@ -160,7 +159,7 @@ class Window(QMainWindow):
         ]
 
     def setConn(self):
-        self.conn = Settings(self)
+        self.conn = addConnect(self)
         self.conn.exec_()
         self.loadConn(self.name_conn)
 
@@ -176,7 +175,6 @@ class Window(QMainWindow):
 class Settings(QDialog):
     def __init__(self, parent):
         super().__init__()
-        self.setWindowTitle("Configure the connection")
         self.name = QLabel('connection name')
         self.user = QLabel('user')
         self.password = QLabel('password')
@@ -282,6 +280,11 @@ class Settings(QDialog):
             )
         )
 
+class addConnect(Settings, QDialog):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.setWindowTitle("Configure the connection")
+
 
 class Deleter(QDialog):
     def __init__(self, parent):
@@ -315,16 +318,13 @@ class Deleter(QDialog):
     def check_lst_for_emp(self):
         if self.lst.count() == 0:
             self.lst.addItem('empty')
-            #self.label = QLabel('empty', self)
             self.lst.setStyleSheet(
                 """
                     QListWidget {
-                        color: grey;
-                        text-align: center
+                        color: grey
                     }
                 """
             )
-            #self.label.setAlignment(Qt.AlignVCenter)
             self.lst.itemClicked.disconnect(self.select_conn)
             self.del_button.setEnabled(False)
         else:
