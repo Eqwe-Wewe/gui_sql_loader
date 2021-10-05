@@ -89,9 +89,11 @@ class Window(QMainWindow):
         self.grid.addWidget(self.load_btn, 2, 1)
 
     def menu(self):
-        setAct = QAction('Configure the connection', self)
-        setAct.setShortcut('Ctrl+N')
-        setAct.triggered.connect(self.setConn)
+        addConnAct = QAction('Add connection', self)
+        addConnAct.setShortcut('Ctrl+N')
+        addConnAct.triggered.connect(self.setConn)
+        confConnAct = QAction('Configure connection', self)
+        confConnAct.triggered.connect(self.confConn)
         delConnAct = QAction('Drop the connection', self)
         delConnAct.triggered.connect(self.delConn)
         aboutAct = QAction('About', self)
@@ -102,7 +104,8 @@ class Window(QMainWindow):
 
         menu = self.menuBar()
         mainMenu = menu.addMenu('File')
-        mainMenu.addAction(setAct)
+        mainMenu.addAction(addConnAct)
+        mainMenu.addAction(confConnAct)
         mainMenu.addAction(delConnAct)
         mainMenu.addSeparator()
         mainMenu.addAction(exitAct)
@@ -161,6 +164,11 @@ class Window(QMainWindow):
     def setConn(self):
         self.conn = addConnect(self)
         self.conn.exec_()
+        self.loadConn(self.name_conn)
+
+    def confConn(self):
+        self.del_connect = configureConnect(self)
+        self.del_connect.exec_()
         self.loadConn(self.name_conn)
 
     def delConn(self):
@@ -283,8 +291,23 @@ class Settings(QDialog):
 class addConnect(Settings, QDialog):
     def __init__(self, parent):
         super().__init__(parent)
-        self.setWindowTitle("Configure the connection")
+        self.setWindowTitle("Add connection")
 
+
+class configureConnect(Settings, QDialog):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.lst_label = QLabel('list of connections')
+        self.lst_combobox = QComboBox(self)
+        Window.loadConn(self, self.lst_combobox)
+        self.lst_combobox.currentTextChanged.connect(self.change_prop_qline)
+        self.g.addWidget(self.lst_label, 0, 0)
+        self.g.addWidget(self.lst_combobox, 0, 1)
+        self.setWindowTitle("Configure connection")
+
+    def change_prop_qline(self):
+        pass
+            
 
 class Deleter(QDialog):
     def __init__(self, parent):
