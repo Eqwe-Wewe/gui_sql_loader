@@ -303,10 +303,20 @@ class configureConnect(Settings, QDialog):
         self.lst_combobox.currentTextChanged.connect(self.change_prop_qline)
         self.g.addWidget(self.lst_label, 0, 0)
         self.g.addWidget(self.lst_combobox, 0, 1)
+        self.change_prop_qline()
         self.setWindowTitle("Configure connection")
 
     def change_prop_qline(self):
-        pass
+        with open('config.json', 'r', encoding='utf-8') as file:
+            json_data = json.load(file)
+        name_conn = json_data[self.lst_combobox.currentText()]
+        self.setName.setText(self.lst_combobox.currentText())
+        self.setUser.setText(name_conn['user'])
+        self.setPassword.setText(name_conn['password'])
+        self.setHost.setText(name_conn['ip-address']['host'])
+        self.setPort.setText(name_conn['ip-address']['port'])
+        self.setDatabase.setText(name_conn['database'])
+        self.lst_dbms.setCurrentText(name_conn['dbms'])
             
 
 class Deleter(QDialog):
