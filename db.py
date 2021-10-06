@@ -1,5 +1,5 @@
 from psycopg2 import connect as postgresql_connect, Error as postgresql_Error
-from sqlite3 import connect as sqlite_connect, Error as sqlite_Error
+from cx_Oracle import connect as cx_Oracle_connect, Error as cx_Oracle_Error
 from mysql.connector import connect as mysql_connect, Error as mysql_Error
 
 
@@ -19,9 +19,9 @@ class DataBase:
         elif db_type == 'PostgresSQL':
             connect = postgresql_connect
             Error = postgresql_Error
-        elif db_type == 'SQLite':
-            connect = sqlite_connect
-            Error = sqlite_Error
+        elif db_type == 'cx_Oracle':
+            connect = cx_Oracle_connect
+            Error = cx_Oracle_Error
 
         try:
             self.conn = connect(**self.config)
