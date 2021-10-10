@@ -177,7 +177,8 @@ class Window(QMainWindow):
         self.loadConn(self.name_conn)
 
     def about(self):
-        pass
+        self.inst_about = About()
+        self.inst_about.exec_()
 
 
 class Settings(QDialog):
@@ -199,7 +200,7 @@ class Settings(QDialog):
         self.setPort = QLineEdit(self)
         self.setDatabase = QLineEdit(self)
         self.lst_dbms = QComboBox(self)
-        self.lst_dbms.addItems(['MySQL', 'PostgreSQL', 'SQLite'])
+        self.lst_dbms.addItems(['MySQL', 'PostgreSQL', 'Oracle'])
 
         self.btn = QPushButton("Configure", self)
         self.btn.pressed.connect(self.configure)
@@ -366,6 +367,14 @@ class Deleter(QDialog):
     def select_conn(self, conn):
         self.conn = conn.text()
 
+
+class About(QDialog):
+    def __init__(self, parent):
+        super().__init__()
+        self.label = QLabel(self)
+        self.label.setText('k')
+        self.button = QPushButton('Ok', self)
+        
 
 def main():
     app = app = QApplication(sys.argv)
