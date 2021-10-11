@@ -372,9 +372,26 @@ class About(QDialog):
     def __init__(self, parent):
         super().__init__()
         self.label = QLabel(self)
-        self.label.setText('k')
+        self.label.setText(
+            """
+            author: Sergey Samchuk
+
+            date: 10.2021
+
+            This application is designed to download and execute SQL scripts.
+            It works with the following DBMS:
+            Oracle,
+            MySQL,
+            PostgreSQL.
+            
+            """
+        )
         self.button = QPushButton('Ok', self)
-        
+        self.button.pressed.connect(self.close)
+        self.h_layout = QVBoxLayout(self)
+        self.h_layout.addWidget(self.label)
+        self.h_layout.addWidget(self.button)
+
 
 def main():
     app = app = QApplication(sys.argv)
