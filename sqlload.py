@@ -177,7 +177,7 @@ class Window(QMainWindow):
         self.loadConn(self.name_conn)
 
     def about(self):
-        self.inst_about = About()
+        self.inst_about = About(self)
         self.inst_about.exec_()
 
 
@@ -374,15 +374,20 @@ class About(QDialog):
         self.label = QLabel(self)
         self.label.setText(
             """
-            author: Sergey Samchuk
-
-            date: 10.2021
-
-            This application is designed to download and execute SQL scripts.
-            It works with the following DBMS:
-            Oracle,
-            MySQL,
-            PostgreSQL.
+            <div>
+              author: Sergey Samchuk
+              <br>date: 10.2021
+              <br>
+            </div>
+            <div>
+              This application is designed to download and execute SQL scripts.
+              <br>It works with the following DBMS:
+              <ul style= margin-left:10px>
+                  <li>Oracle</li>
+                  <li>MySQL</li>
+                  <li>PostgreSQL</li>
+              </ul>
+            </div>
             
             """
         )
@@ -391,6 +396,8 @@ class About(QDialog):
         self.h_layout = QVBoxLayout(self)
         self.h_layout.addWidget(self.label)
         self.h_layout.addWidget(self.button)
+        self.setWindowTitle("About")
+        self.setFixedSize(350, 200)
 
 
 def main():
