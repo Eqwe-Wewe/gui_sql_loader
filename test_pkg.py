@@ -1,4 +1,5 @@
 from unnamed2 import loader
 
 
-loader()
+if __name__ == '__main__':
+  loader()
