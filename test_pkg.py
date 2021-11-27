@@ -1,4 +1,4 @@
-from unnamed2 import loader
+from unnamed_pkg import loader
 
 
 if __name__ == '__main__':

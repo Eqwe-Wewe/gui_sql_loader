@@ -4,6 +4,6 @@ __all__ = [
 
 
 def loader():
-    from unnamed2.sqlload import Window
+    from unnamed_pkg.sqlload import Window
     return Window.main()
 
