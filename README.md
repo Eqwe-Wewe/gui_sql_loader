@@ -1,4 +1,4 @@
-### A simple gui application like sql*loader для работы с PostgreSQL and MySQL
+### A simple GUI application such as sql*loader for working with PostgreSQL and MySQL
 
 ### For running application:
  * [Python 3.8.6](https://www.python.org/downloads/release/python-386/)
