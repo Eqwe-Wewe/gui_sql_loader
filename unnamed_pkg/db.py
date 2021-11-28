@@ -12,10 +12,10 @@ class DataBase:
         self.db_type = db_type
     
     def __enter__(self):
-        if db_type == 'MySQL':
+        if self.db_type == 'MySQL':
             connect = mysql_connect
             Error = mysql_Error
-        elif db_type == 'PostgresSQL':
+        elif self.db_type == 'PostgresSQL':
             connect = postgresql_connect
             Error = postgresql_Error
         try:

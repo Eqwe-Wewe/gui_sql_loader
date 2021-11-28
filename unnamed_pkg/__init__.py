@@ -1,9 +1,4 @@
-__all__ = [
-    'sqlload'
-]
+__all__ = ['sqlload']
 
 
-def loader():
-    from unnamed_pkg.sqlload import Window
-    return Window.main()
-
+from unnamed_pkg.sqlload import main

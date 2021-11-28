@@ -1,5 +1,5 @@
-from unnamed_pkg import loader
+from unnamed_pkg import main
 
 
 if __name__ == '__main__':
-  loader()
+  main()

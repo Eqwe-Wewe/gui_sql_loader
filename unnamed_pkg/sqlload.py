@@ -22,8 +22,8 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtCore import Qt, QRect, QSize, pyqtSignal
-import resources
-from db import DataBase
+import unnamed_pkg.resources
+from unnamed_pkg.db import DataBase
 import json
 import os
 import sys
@@ -200,7 +200,7 @@ class Settings(QDialog):
         self.setPort = QLineEdit(self)
         self.setDatabase = QLineEdit(self)
         self.lst_dbms = QComboBox(self)
-        self.lst_dbms.addItems(['MySQL', 'PostgreSQL', 'Oracle'])
+        self.lst_dbms.addItems(['MySQL', 'PostgreSQL'])
 
         self.btn = QPushButton("Configure", self)
         self.btn.pressed.connect(self.configure)
@@ -374,16 +374,14 @@ class About(QDialog):
         self.label = QLabel(self)
         self.label.setText(
             """
-            <div>
+            <div style= margin-left:10px>
+              <br>
               author: Sergey Samchuk
               <br>date: 10.2021
               <br>
-            </div>
-            <div>
-              This application is designed to download and execute SQL scripts.
+              <p>This application is designed to download and execute SQL scripts.
               <br>It works with the following DBMS:
-              <ul style= margin-left:10px>
-                  <li>Oracle</li>
+              <ul>
                   <li>MySQL</li>
                   <li>PostgreSQL</li>
               </ul>
@@ -392,10 +390,11 @@ class About(QDialog):
             """
         )
         self.button = QPushButton('Ok', self)
+        self.button.setMaximumWidth(70)
         self.button.pressed.connect(self.close)
         self.h_layout = QVBoxLayout(self)
         self.h_layout.addWidget(self.label)
-        self.h_layout.addWidget(self.button)
+        self.h_layout.addWidget(self.button, alignment=Qt.AlignCenter)
         self.setWindowTitle("About")
         self.setFixedSize(350, 200)
 
