@@ -71,6 +71,7 @@ class Window(QMainWindow):
 
         self.label_file_name = QListWidget(self.w)
         self.label_file_name.setWordWrap(True)
+        
 
         self.add_btn = QPushButton(self.w)
         self.add_btn.setText('Add file')
@@ -130,9 +131,9 @@ class Window(QMainWindow):
         except IndexError:
             None
         else:
-            self.label_file_name.addItems(self.path_scripts)
-            if (
-                len(self.path_scripts) and
+            path_lst = [path.split('/')[-1] for path in self.path_scripts]
+            self.label_file_name.addItems(path_lst)
+            if (len(self.path_scripts) and
                 len(self.name_conn.currentText())
                 ) > 0:
                 self.send_btn.setEnabled(True)
@@ -163,12 +164,12 @@ class Window(QMainWindow):
         ]
 
     def setConn(self):
-        self.conn = addConnect(self)
+        self.conn = AddConnect(self)
         self.conn.exec_()
         self.loadConn(self.name_conn)
 
     def confConn(self):
-        self.del_connect = configureConnect(self)
+        self.del_connect = ConfigureConnect(self)
         self.del_connect.exec_()
         self.loadConn(self.name_conn)
 
@@ -264,7 +265,6 @@ class Settings(QDialog):
         else:
             message = 'config create successfully!'
         finally:
-            print(f'{message = }')
             self.msg.information(self, 'info', message)
             self.close()
 
@@ -286,13 +286,13 @@ class Settings(QDialog):
             )
         )
 
-class addConnect(Settings, QDialog):
+class AddConnect(Settings, QDialog):
     def __init__(self, parent):
         super().__init__(parent)
         self.setWindowTitle("Add connection")
 
 
-class configureConnect(Settings, QDialog):
+class ConfigureConnect(Settings, QDialog):
     def __init__(self, parent):
         super().__init__(parent)
         self.lst_label = QLabel('list of connections')
