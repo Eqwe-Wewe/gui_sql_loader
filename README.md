@@ -5,3 +5,6 @@
  * [PyQt5](https://pypi.org/project/PyQt5/)
  * [mysql-connector-python](https://pypi.org/project/mysql-connector-python/)
  * [psycopg2](https://pypi.org/project/psycopg2/)
+### Screenshots
+![](docs/add_conn.png)<br>
+![](docs/main.png)<br>
