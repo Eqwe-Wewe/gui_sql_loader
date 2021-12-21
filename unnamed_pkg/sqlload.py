@@ -72,21 +72,21 @@ class Window(QMainWindow):
         self.label_file_name = QListWidget(self.w)
         self.label_file_name.setWordWrap(True)
 
-        self.open_btn = QPushButton(self.w)
-        self.open_btn.setText('Open file')
-        self.open_btn.pressed.connect(self.openFile)
-        self.load_btn = QPushButton(self.w)
-        self.load_btn.setText('Load file')
-        self.load_btn.setEnabled(False)
-        self.load_btn.pressed.connect(self.loadFile)
-        self.load_btn.move(100, 0)
+        self.add_btn = QPushButton(self.w)
+        self.add_btn.setText('Add file')
+        self.add_btn.pressed.connect(self.addFile)
+        self.send_btn = QPushButton(self.w)
+        self.send_btn.setText('Send data')
+        self.send_btn.setEnabled(False)
+        self.send_btn.pressed.connect(self.sendData)
+        self.send_btn.move(100, 0)
 
         self.grid = QGridLayout(self.w)
         self.grid.setSpacing(10)
         self.grid.addWidget(self.label_file_name, 1, 0)
         self.grid.addWidget(self.name_conn, 1, 1)
-        self.grid.addWidget(self.open_btn, 2, 0)
-        self.grid.addWidget(self.load_btn, 2, 1)
+        self.grid.addWidget(self.add_btn, 2, 0)
+        self.grid.addWidget(self.send_btn, 2, 1)
 
     def menu(self):
         addConnAct = QAction('Add connection', self)
@@ -123,7 +123,7 @@ class Window(QMainWindow):
             widget.clear()
             widget.addItems(items)
 
-    def openFile(self):
+    def addFile(self):
         try:
             self.path_scripts = QFileDialog.getOpenFileNames(
                 self, None, None, "*.sql"
@@ -133,9 +133,9 @@ class Window(QMainWindow):
         else:
             self.label_file_name.addItems(self.path_scripts)
             if len(self.path_scripts) > 0:
-                self.load_btn.setEnabled(True)
+                self.send_btn.setEnabled(True)
 
-    def loadFile(self):
+    def sendData(self):
         for path in self.path_scripts:
             with DataBase(*self.getConfig()) as cursor:
                 if cursor.execute(open(path).read()):
@@ -404,7 +404,3 @@ def main():
     window = Window()
     window.show()
     sys.exit(app.exec_())
-
-
-if __name__ == '__main__':
-    main()
