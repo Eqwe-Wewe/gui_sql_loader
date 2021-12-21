@@ -25,7 +25,6 @@ from PyQt5.QtCore import Qt, QRect, QSize, pyqtSignal
 import unnamed_pkg.resources
 from unnamed_pkg.db import DataBase
 import json
-import os
 import sys
 
 
@@ -53,6 +52,7 @@ class Label(QLabel):
 
 class Window(QMainWindow):
     def __init__(self):
+        self.config_path = 'unnamed_pkg/config.json'
         super().__init__()
         self.initUI()
         self.menu()
@@ -114,9 +114,8 @@ class Window(QMainWindow):
 
     def loadConn(self, widget):
         try:
-            with open('config.json', 'r') as file:
-                data = json.load(file)
-                items = [i for i in data]
+            data = json.load(open(self.config_path))
+            items = [i for i in data]
         except Exception:
             return ['no connections']
         else:
@@ -132,7 +131,10 @@ class Window(QMainWindow):
             None
         else:
             self.label_file_name.addItems(self.path_scripts)
-            if len(self.path_scripts) > 0:
+            if (
+                len(self.path_scripts) and
+                len(self.name_conn.currentText())
+                ) > 0:
                 self.send_btn.setEnabled(True)
 
     def sendData(self):
@@ -146,10 +148,9 @@ class Window(QMainWindow):
 
     def getConfig(self):
         config_name = self.name_conn.currentText()
-        with open('config.json', 'r') as file:
-            data = json.load(file)
-            config = [i for i in data if i == config_name][0]
-            db_type = config['dbms']
+        data = json.load(open(self.config_path))
+        config = [i for i in data if i == config_name][0]
+        db_type = config['dbms']
         return [
             {
                 'user': config['user'],
@@ -184,6 +185,7 @@ class Window(QMainWindow):
 class Settings(QDialog):
     def __init__(self, parent):
         super().__init__()
+        self.config_path = 'unnamed_pkg/config.json'
         self.name = QLabel('connection name')
         self.user = QLabel('user')
         self.password = QLabel('password')
@@ -241,35 +243,30 @@ class Settings(QDialog):
         self.g.addWidget(self.btn, 8, 0, 1, 0)
 
     def configure(self):
-        if not os.path.exists('config.json'):
-            with open('config.json', 'w', encoding='utf-8') as file:
-                data = {}
-                json_data = json.dump(data, file, indent=3)
-                file.write(json_data)
-
-        with open('config.json', 'r', encoding='utf-8') as file:
-            json_data = json.load(file)
-
-        with open('config.json', 'w', encoding='utf-8') as file:
-            json_data[self.setName.text()] = {
-                'user': self.setUser.text(),
-                'password': self.setPassword.text(),
-                'ip-address': {
-                    'host': self.setHost.text(),
-                    'port': self.setPort.text()
-                },
-                'database': self.setDatabase.text(),
-                'dbms': self.lst_dbms.currentText()
-            }
-            try:
-                json.dump(json_data, file, indent=3, ensure_ascii=False)
-            except Exception as err:
-                message = err
-            else:
-                message = 'config create successfully!'
-            finally:
-                self.msg.information(self, 'info', message)
-                self.close()
+        json_data = json.load(open(self.config_path))
+        json_data[self.setName.text()] = {
+            'user': self.setUser.text(),
+            'password': self.setPassword.text(),
+            'ip-address': {
+                'host': self.setHost.text(),
+                'port': self.setPort.text()
+            },
+            'database': self.setDatabase.text(),
+            'dbms': self.lst_dbms.currentText()
+        }
+        try:
+            json.dump(
+                json_data, open(self.config_path, 'w'),
+                indent=3, ensure_ascii=False
+            )
+        except Exception as err:
+            message = err
+        else:
+            message = 'config create successfully!'
+        finally:
+            print(f'{message = }')
+            self.msg.information(self, 'info', message)
+            self.close()
 
     def echoAction(self):
         if self.echo is True:
@@ -308,20 +305,23 @@ class configureConnect(Settings, QDialog):
         self.setWindowTitle("Configure connection")
 
     def change_prop_qline(self):
-        with open('config.json', 'r', encoding='utf-8') as file:
-            json_data = json.load(file)
-        name_conn = json_data[self.lst_combobox.currentText()]
-        self.setName.setText(self.lst_combobox.currentText())
-        self.setUser.setText(name_conn['user'])
-        self.setPassword.setText(name_conn['password'])
-        self.setHost.setText(name_conn['ip-address']['host'])
-        self.setPort.setText(name_conn['ip-address']['port'])
-        self.setDatabase.setText(name_conn['database'])
-        self.lst_dbms.setCurrentText(name_conn['dbms'])
+        json_data = json.load(open(self.config_path))
+        if len(json_data) == 0:
+            self.msg.information(self, 'info', 'Not connections')
+        else:
+            name_conn = json_data[self.lst_combobox.currentText()]
+            self.setName.setText(self.lst_combobox.currentText())
+            self.setUser.setText(name_conn['user'])
+            self.setPassword.setText(name_conn['password'])
+            self.setHost.setText(name_conn['ip-address']['host'])
+            self.setPort.setText(name_conn['ip-address']['port'])
+            self.setDatabase.setText(name_conn['database'])
+            self.lst_dbms.setCurrentText(name_conn['dbms'])
             
 
 class Deleter(QDialog):
     def __init__(self, parent):
+        self.config_path = 'unnamed_pkg/config.json'
         super().__init__()
 
         self.lst = ListWidget(self)
@@ -341,12 +341,10 @@ class Deleter(QDialog):
         
     def drop_conn_json(self):
         self.lst.takeItem(self.conn)
-        with open('config.json', 'r', encoding='utf-8') as file:
-            data = json.load(file)
+        data = json.load(open(self.config_path))
         data.pop(self.conn)
-        with open('config.json', 'w', encoding='utf-8') as file:
-            json.dump(data, file, indent=3, ensure_ascii=False)
-            self.msg.information(self, 'info', 'config delete!')
+        json.dump(data, open(self.config_path, 'w'), indent=3, ensure_ascii=False)
+        self.msg.information(self, 'info', 'config delete!')
         self.check_lst_for_emp()    
 
     def check_lst_for_emp(self):
